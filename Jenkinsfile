@@ -116,8 +116,8 @@ pipeline {
  
                             i=1
                             while [ \$i -le 10 ]; do
-                                EXTERNAL_IP=\$(kubectl get service fitness-tracker-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "")
-                                EXTERNAL_HOSTNAME=\$(kubectl get service fitness-tracker-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || echo "")
+                                EXTERNAL_IP=\$(kubectl get service inventory-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "")
+                                EXTERNAL_HOSTNAME=\$(kubectl get service inventory-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || echo "")
  
                                 if [ ! -z "\$EXTERNAL_IP" ]; then
                                     echo "🌐 Application URL: http://\$EXTERNAL_IP"
@@ -133,7 +133,7 @@ pipeline {
                             done
  
                             # Show final service status
-                            kubectl get service fitness-tracker-service
+                            kubectl get service inventory-service
                             echo "✅ Deployment completed successfully!"
                         """
                     }
