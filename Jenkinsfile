@@ -3,8 +3,8 @@ pipeline {
     environment {
         DOCKER_IMAGE = "shikhar200/majorproject-app"
         DOCKER_TAG   = "${BUILD_NUMBER}"
-        EKS_CLUSTER_NAME = "shikhar-test-cluster"
-        AWS_REGION = "ap-southeast-1"
+        EKS_CLUSTER_NAME = "shikhar-project-cluster"
+        AWS_REGION = "us-east-1"
     }
     stages {
         stage('Checkout') {
