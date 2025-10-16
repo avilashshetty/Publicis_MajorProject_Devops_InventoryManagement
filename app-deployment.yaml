@@ -50,6 +50,6 @@ spec:
   selector:
    app: inventory-management-app
   ports:
-  - port: 8070
+  - port: 3009
     targetPort: 3000
   type: LoadBalancer
