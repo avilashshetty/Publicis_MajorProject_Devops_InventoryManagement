@@ -1,0 +1,152 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:7-jammy
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongodb-storage
+          mountPath: /data/db
+      volumes:
+      - name: mongodb-storage
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+spec:
+  selector:
+    app: mongodb
+  ports:
+  - port: 27017
+    targetPort: 27017
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: invent-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: invent-app
+  template:
+    metadata:
+      labels:
+        app: invent-app
+      annotations:
+        ad.datadoghq.com/book-app.logs: '[{"source":"nodejs","service":"invent-service"},{"source":"nodejs","service":"invent-app"}]'
+    spec:
+      containers:
+      - name: invent-app
+        image: rahul69980/image_invent:v1.4.0
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MONGO_URI
+          value: "mongodb://mongodb-service:27017/inventorydb_prod"
+        - name: PORT
+          value: "3000"
+        - name: HOST
+          value: "0.0.0.0"
+        - name: NODE_ENV
+          value: "production"
+        - name: SESSION_SECRET
+          value: "CHANGE-THIS-super-secret-production-key-for-inventory-system-2024"
+        - name: JWT_SECRET
+          value: "CHANGE-THIS-jwt-production-secret-key-2024-inventory"
+        - name: BCRYPT_SALT_ROUNDS
+          value: "12"
+        - name: SMTP_HOST
+          value: "smtp.gmail.com"
+        - name: SMTP_PORT
+          value: "587"
+        - name: SMTP_USER
+          value: "your-production-email@yourdomain.com"
+        - name: SMTP_PASS
+          value: "your-app-specific-password"
+        - name: SMTP_FROM
+          value: "noreply@yourdomain.com"
+        - name: UPLOAD_DIR
+          value: "/var/www/inventory-app/uploads"
+        - name: MAX_FILE_SIZE
+          value: "10485760"
+        - name: ALLOWED_FILE_TYPES
+          value: "jpg,jpeg,png,pdf,doc,docx"
+        - name: LOG_LEVEL
+          value: "info"
+        - name: LOG_FILE
+          value: "/var/log/inventory-app/app.log"
+        - name: RATE_LIMIT_WINDOW
+          value: "15"
+        - name: RATE_LIMIT_MAX_REQUESTS
+          value: "50"
+        - name: DEFAULT_PAGE_SIZE
+          value: "20"
+        - name: MAX_PAGE_SIZE
+          value: "100"
+        - name: DEFAULT_CURRENCY
+          value: "INR"
+        - name: DEFAULT_WAREHOUSE
+          value: "Main Warehouse"
+        - name: DEFAULT_LEAD_TIME
+          value: "7"
+        - name: ENABLE_EMAIL_NOTIFICATIONS
+          value: "true"
+        - name: ENABLE_SMS_NOTIFICATIONS
+          value: "false"
+        - name: ENABLE_REALTIME_NOTIFICATIONS
+          value: "true"
+        - name: DEBUG
+          value: "false"
+        - name: ENABLE_SEEDING
+          value: "false"
+        - name: AUTO_MIGRATE
+          value: "false"
+        - name: CORS_ORIGIN
+          value: "*"
+        - name: CORS_CREDENTIALS
+          value: "true"
+        - name: BACKUP_ENABLED
+          value: "true"
+        - name: BACKUP_INTERVAL
+          value: "24"
+        - name: BACKUP_RETENTION_DAYS
+          value: "30"
+        - name: API_VERSION
+          value: "v1"
+        - name: API_PREFIX
+          value: "/api"
+        - name: TZ
+          value: "Asia/Kolkata"
+        - name: DATE_FORMAT
+          value: "DD/MM/YYYY"
+        - name: TIME_FORMAT
+          value: "HH:mm:ss"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: invent-service
+spec:
+  selector:
+    app: invent-app
+  ports:
+  - port: 8111
+    targetPort: 3000
+  type: LoadBalancer
