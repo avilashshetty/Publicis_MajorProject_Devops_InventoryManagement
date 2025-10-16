@@ -15,7 +15,7 @@ spec:
        ad.datadoghq.com/inventory-management-app.logs: '[{"source":"nodejs","service":"inventory-management-service"},{"source":"nodejs","service":"inventory-management-app"}]'
     spec:
       containers:
-      - name: fitness-tracker-app
+      - name: inventory-management-app
         image: rahul69980/image_invent:v1.4.0
         ports:
         - containerPort: 3000
@@ -50,6 +50,6 @@ spec:
   selector:
    app: inventory-management-app
   ports:
-  - port: 3009
+  - port: 3010
     targetPort: 3000
   type: LoadBalancer
